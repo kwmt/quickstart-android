@@ -22,14 +22,21 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
+import com.google.firebase.ml.vision.face.FirebaseVisionFace;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 import com.google.firebase.samples.apps.mlkit.common.BitmapUtils;
 import com.google.firebase.samples.apps.mlkit.common.FrameMetadata;
 import com.google.firebase.samples.apps.mlkit.common.GraphicOverlay;
 import com.google.firebase.samples.apps.mlkit.common.VisionImageProcessor;
 
 import java.nio.ByteBuffer;
+import java.util.List;
+
+import kotlin.NotImplementedError;
 
 /**
  * Abstract base class for ML Kit frame processors. Subclasses need to implement {@link
@@ -128,6 +135,25 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                                 VisionProcessorBase.this.onFailure(e);
                             }
                         });
+
+        detectInImage2(image)
+                .addOnSuccessListener(
+                        new OnSuccessListener<List<FirebaseVisionFace>>() {
+                            @Override
+                            public void onSuccess(List<FirebaseVisionFace> results) {
+                                VisionProcessorBase.this.onSuccess2(originalCameraImage, results,
+                                        metadata,
+                                        graphicOverlay);
+                                processLatestImage(graphicOverlay);
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                VisionProcessorBase.this.onFailure(e);
+                            }
+                        });
     }
 
     @Override
@@ -136,17 +162,34 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
 
     protected abstract Task<T> detectInImage(FirebaseVisionImage image);
 
+
+    private final FirebaseVisionFaceDetector detector = FirebaseVision.getInstance().getVisionFaceDetector(new FirebaseVisionFaceDetectorOptions.Builder()
+            .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
+            .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
+            .build());
+
+    protected Task<List<FirebaseVisionFace>> detectInImage2(FirebaseVisionImage image) {
+
+        return detector.detectInImage(image);
+    }
+
+
+    protected  void onSuccess2(
+            @Nullable Bitmap originalCameraImage,
+            @NonNull List<FirebaseVisionFace> faces,
+            @NonNull FrameMetadata frameMetadata,
+            @NonNull GraphicOverlay graphicOverlay){};
     /**
      * Callback that executes with a successful detection result.
      *
      * @param originalCameraImage hold the original image from camera, used to draw the background
      *                            image.
      */
-    protected abstract void onSuccess(
+    protected  void onSuccess(
             @Nullable Bitmap originalCameraImage,
             @NonNull T results,
             @NonNull FrameMetadata frameMetadata,
-            @NonNull GraphicOverlay graphicOverlay);
+            @NonNull GraphicOverlay graphicOverlay) {}
 
     protected abstract void onFailure(@NonNull Exception e);
 }

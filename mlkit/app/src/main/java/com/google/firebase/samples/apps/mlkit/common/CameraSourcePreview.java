@@ -96,6 +96,7 @@ public class CameraSourcePreview extends ViewGroup {
         Size size = cameraSource.getPreviewSize();
         int min = Math.min(size.getWidth(), size.getHeight());
         int max = Math.max(size.getWidth(), size.getHeight());
+        Log.d(TAG, "min:" + min + ", max" +  max);
         if (isPortraitMode()) {
           // Swap width and height sizes when in portrait, since it will be rotated by
           // 90 degrees

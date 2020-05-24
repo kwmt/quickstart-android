@@ -16,6 +16,7 @@ package com.google.firebase.samples.apps.mlkit.common;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.vision.CameraSource;
@@ -168,6 +169,8 @@ public class GraphicOverlay extends View {
         widthScaleFactor = (float) getWidth() / previewWidth;
         heightScaleFactor = (float) getHeight() / previewHeight;
       }
+
+        Log.d("MIDemoApp", "previewWidth:"+previewWidth+",previewHeight:"+previewHeight+",getWidth() :" + getWidth() + ",getHeight(): "+ getHeight() +",widthScaleFactor:" + widthScaleFactor + ", heightScaleFactor:" + heightScaleFactor);
 
       for (Graphic graphic : graphics) {
         graphic.draw(canvas);
