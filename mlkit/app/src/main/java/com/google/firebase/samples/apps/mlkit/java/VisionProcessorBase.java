@@ -81,7 +81,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
     @Override
     public void process(Bitmap bitmap, final GraphicOverlay
             graphicOverlay) {
-        detectInVisionImage(null /* bitmap */, FirebaseVisionImage.fromBitmap(bitmap), null,
+        detectInVisionImage(null /* bitmap */, FirebaseVisionImage.fromBitmap(bitmap), FirebaseVisionImage.fromBitmap(bitmap), null,
                 graphicOverlay);
     }
 
@@ -105,16 +105,24 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         .setHeight(frameMetadata.getHeight())
                         .setRotation(frameMetadata.getRotation())
                         .build();
+        FirebaseVisionImageMetadata metadata2 =
+                new FirebaseVisionImageMetadata.Builder()
+                        .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
+                        .setWidth(frameMetadata.getWidth())
+                        .setHeight(frameMetadata.getHeight())
+                        .setRotation(2)
+                        .build();
 
         Bitmap bitmap = BitmapUtils.getBitmap(data, frameMetadata);
         detectInVisionImage(
-                bitmap, FirebaseVisionImage.fromByteBuffer(data, metadata), frameMetadata,
+                bitmap, FirebaseVisionImage.fromByteBuffer(data, metadata), FirebaseVisionImage.fromByteBuffer(data, metadata2), frameMetadata,
                 graphicOverlay);
     }
 
     private void detectInVisionImage(
             final Bitmap originalCameraImage,
             FirebaseVisionImage image,
+            FirebaseVisionImage image2,
             final FrameMetadata metadata,
             final GraphicOverlay graphicOverlay) {
         detectInImage(image)
@@ -136,7 +144,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                             }
                         });
 
-        detectInImage2(image)
+        detectInImage2(image2)
                 .addOnSuccessListener(
                         new OnSuccessListener<List<FirebaseVisionFace>>() {
                             @Override
